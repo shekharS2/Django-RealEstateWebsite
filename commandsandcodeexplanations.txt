@@ -1,0 +1,213 @@
+important commands:
+cd "D:\Projects\Django Projects\Environments" ---------------
+virtualenv django_env -------------- python -m venv venv 
+django_env\Scripts\activate ----------------------- venv\Scripts\activate.bat
+pip list
+pip install django
+django-admin
+django-admin startproject django_project
+python manage.py runserver ----------------------
+python manage.py startapp blog
+
+
+Templates:
+
+In views.py, instead of sending all our html as a response in quotes here, we can use "templates" in a newly created sub-directory called templates
+By default, django loks for a templates sub-directory in each of our installed apps
+
+In blog folder, we create template sub-dir and then again blog folder
+We go to apps.py in blog (where app configuration is there), copy class name of config class
+Then we go to settings.py in django_project and add the copied name to  INSTALLED APPS
+Then add return the template from views.py using render function 
+
+In templates we dont use python.. It is similar to python, but not python {%%}
+
+Template Inheritance - to remove problem of repeating template code inside {% %}
+In template inheritance, we have a base template inside the templates sub-dir where we put all the common code..
+To add static files like css, javascript for templates, we have a sub-dir called static inside app dir (i.e., blog) and inside static sub-dir another folder called 'blog'. Inside that, we keep css, js files..
+
+Django "url" tags, which are set in url-patterns in the urls.py file inside blog directory, can be used for href instead of the whole path to the page. e.g., {% url 'blog-home' %} 
+
+ADMIN PAGE:
+    python manage.py migrate
+    python manage.py createsuperuser (shekhar 123456)
+    python manage.py runserver
+    
+    python manage.py makemigrations ---- we need to run migrations to update any changes to the database
+    python manage.py migrate
+    
+    python manage.py sqlmigrate blog 0001 ----- to check corresponding command
+    
+    python manage.py shell
+        from blog.models import Post
+        from django.contrib.auth.models import User ----- created in the Django database initially
+        User.objects.all()
+        user = User.objects.first()
+        user.id
+        user.pk
+        user = User.objects.get(id=1)
+        user
+        
+        post_1 = Post(title='Blog 1', content='First Post Content', author=user) ------------ also, instead 'author_id=user.id' can be used
+        post_1.save()
+        post_2 = Post(title='Blog 2', content='Second Post Content', author=user)
+        post_2.save()
+        Post.objects.all() --------------Post created in models.py
+        To show the result in better format, we wrote a dunder method in Post class in models.py
+        For changes in the models.py to take effect, we have to exit the shell and re-enter
+        
+        user = User.objects.filter(username = 'shekhar').first()
+        user
+
+        post = Post.objects.first()
+        post
+        post.content
+        post.date_posted
+        post.author #gives the user from user table directly.. we dont have to write queries to access user table again
+        post.author.email
+
+Databases and Migrations:
+Django has its own ORM (Object Relational Mapper) - allows us to use our database in easy-to-use object-oriented way
+No need to chage queries for diff databases, e.g., SQLite and PostgreSQL
+
+In Django, dbs structures are represented as classes. These classes are called 'models'.
+    models.py in blog dir
+    each class is going to be its own table in the db
+    each attribute will be a diff field in the db
+
+    To access all the posts written by shekhar(an user).. no need to fetch the user and then do a query to the post model, filtering by posts with that user as the author..
+    => Django provides simpler query set.. ".modelname_set"
+    e.g.,
+    user = User.objects.filter(username = 'shekhar').first()
+    user
+    user.post_set
+    user.post_set.all()
+    user.post_set.create(title='Blog 3', content='Third Post Content') #no need to provide author
+
+
+
+USER REG FORM.............................................................
+    python manage.py startapp users
+    we add CSRF (cross site reference forgery) token inside register.html of templates/users: {% csrf_token %}
+    {{ form.as_p }}
+    "flash message"
+    f-strings vs formatted strings
+    crispy forms
+
+Login and logout system...............................................
+    class-space views
+    ? auth_views vs users
+    ? is_authenticated
+    "decorator", e.g., @login_required 
+ 
+
+
+User profile and picture.......................................................
+    Pillow .. library for working with images in python
+    pip install Pillow
+    python manage.py makemigrations
+    python manage.py migrate
+
+    from django.contrib.auth.models import User ----- created in the Django database initially
+    user = User.objects.filter(username='Shekhar').first()
+    user.profile
+    user.profile.image
+    user.profile.image.height #or url or width..
+    django "signals"
+
+Update user profile...........................................................
+
+Create, Update and Delete Posts.........................................................
+    till now, we have used "function-based views"... now, we will use "class-based views"
+    types of "class-based views"------------> list views, detailed views, create views, update views, delete views...
+    redirect function vs reverse function : "redirect" will redirect us to a speific route.. "reverse" will simply return the full url to that route as a string
+    "decorators" used for "fun-based views"... mixins used in "class-based views" instead
+
+Pagination................................................... loading only parts of a large page so that the server does not slow down
+    python manage.py shell
+        import json
+        from blogs.models import Post
+        from blog.models import Post
+        with open('posts.json') as f:
+            posts_json = json.load(f)
+
+        for post in posts_json:
+            post = Post(title=post['title'], content=post['content'], author_id=post['user_id'])
+            post.save()
+    
+    python manage.py shell
+        from django.core.paginator import Paginator
+        posts = ['1', '2', '3', '4', '5']
+        p = Paginator(posts, 2)
+        p.num_pages
+
+        for page in p.page_range:
+            print(page)
+
+        p1 = p.page(1)
+        p1
+
+        p1.number
+        p1.object_list
+        p1.has_previous()
+        p1.has_next()
+        p1.next_page_number()
+
+Email and Password Reset....................................................................................................................
+    "Google App Passwords" google search
+    Hide sensitive info like emails in environment variables - video
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
